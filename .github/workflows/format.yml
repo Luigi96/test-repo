@@ -12,6 +12,14 @@ jobs:
       isMember: ${{ steps.checkUserMember.outputs.isMember }}
 
     steps:
+      - name: Check for command
+        id: command
+        uses: xt0rted/slash-command-action@v2
+        continue-on-error: true
+        with:
+          command: spotless
+          reaction-type: "eyes"
+
       - name: Check user membership
         id: checkUserMember
         uses: tspascoal/get-user-teams-membership@v2
@@ -33,6 +41,8 @@ jobs:
       )
 
     runs-on: ubuntu-latest
+
+    needs: get-user-membership
     
     permissions:
       issues: write
@@ -40,14 +50,6 @@ jobs:
       contents: write
 
     steps:
-      - name: Check for command
-        id: command
-        uses: xt0rted/slash-command-action@v2
-        continue-on-error: true
-        with:
-          command: spotless
-          reaction-type: "eyes"
-    
       - name: Get command
         env:
           BODY: ${{ github.event.comment.body }}
