@@ -4,12 +4,32 @@ on:
     types: [ created ]
 
 jobs:
+  get-user-membership:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      isMember: ${{ steps.checkUserMember.outputs.isMember }}
+
+    steps:
+      - name: Check user membership
+        id: checkUserMember
+        uses: tspascoal/get-user-teams-membership@v2
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          username: ${{ github.event.comment.user.login }}
+          team: MyTestTeam
+
   comment-driven-automation:
     if: |
       github.event.issue.pull_request &&
       (
         startsWith(github.event.comment.body, '/spotless') ||
         startsWith(github.event.comment.body, '/help')
+      ) && 
+      (
+        github.event.comment.user.login == github.event.issue.user.login || 
+        needs.get-user-membership.outputs.isMember == 'true'
       )
 
     runs-on: ubuntu-latest
